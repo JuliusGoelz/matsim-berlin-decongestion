@@ -5,11 +5,14 @@ import org.apache.logging.log4j.Logger;
 import org.matsim.api.core.v01.TransportMode;
 import org.matsim.application.MATSimApplication;
 import org.matsim.application.options.SampleOptions;
+import org.matsim.contrib.decongestion.DecongestionConfigGroup;
+import org.matsim.contrib.decongestion.DecongestionModule;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.groups.StrategyConfigGroup;
 import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
+import org.matsim.core.controler.OutputDirectoryHierarchy;
 import org.matsim.core.replanning.strategies.DefaultPlanStrategiesModule;
 import org.matsim.prepare.RunOpenBerlinCalibration;
 import org.matsim.simwrapper.SimWrapperConfigGroup;
@@ -38,6 +41,10 @@ public class RunOpenBerlinScenario extends MATSimApplication {
 
 	@Override
 	protected Config prepareConfig(Config config) {
+
+		// FIXME: only a test
+		config.controler().setLastIteration(1);
+		config.controler().setOverwriteFileSetting(OutputDirectoryHierarchy.OverwriteFileSetting.deleteDirectoryIfExists);
 
 		SimWrapperConfigGroup sw = ConfigUtils.addOrGetModule(config, SimWrapperConfigGroup.class);
 
@@ -106,5 +113,19 @@ public class RunOpenBerlinScenario extends MATSimApplication {
 			}
 		});
 
+		// configure and add decongestion module to controler
+		final DecongestionConfigGroup decongestionSettings = ConfigUtils.addOrGetModule( controler.getConfig(), DecongestionConfigGroup.class );
+
+		decongestionSettings.setWriteOutputIteration(1);
+//		decongestionSettings.setKp(0.0123);
+		decongestionSettings.setKp(0.123);
+		decongestionSettings.setKd(0.0);
+		decongestionSettings.setKi(0.0);
+		decongestionSettings.setMsa(false);
+		decongestionSettings.setTollBlendFactor(1.0);
+		decongestionSettings.setFractionOfIterationsToEndPriceAdjustment(1.0);
+		decongestionSettings.setFractionOfIterationsToStartPriceAdjustment(0.0);
+
+		controler.addOverridingModule(new DecongestionModule(controler.getScenario()) );
 	}
 }
