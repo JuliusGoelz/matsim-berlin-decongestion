@@ -15,7 +15,9 @@ public class RunWithDecongestion extends RunOpenBerlinScenario {
 
 	@Override
 	protected Config prepareConfig(Config config) {
-		config.controler().setRunId("withDecongestion"); // this should adjust the output directory name
+		// change run id and output folder
+		config.controler().setRunId("withDecongestion");
+		config.controler().setOutputDirectory("output/berlin-v" + VERSION + "-0pct-withDecongestion");
 		config = super.prepareConfig(config);
 		return config;
 	}

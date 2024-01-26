@@ -5,8 +5,6 @@ import org.apache.logging.log4j.Logger;
 import org.matsim.api.core.v01.TransportMode;
 import org.matsim.application.MATSimApplication;
 import org.matsim.application.options.SampleOptions;
-import org.matsim.contrib.decongestion.DecongestionConfigGroup;
-import org.matsim.contrib.decongestion.DecongestionModule;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.groups.StrategyConfigGroup;
@@ -20,7 +18,6 @@ import org.matsim.simwrapper.SimWrapperModule;
 import picocli.CommandLine;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
 @CommandLine.Command(header = ":: Open Berlin Scenario ::", version = RunOpenBerlinScenario.VERSION, mixinStandardHelpOptions = true)
 public class RunOpenBerlinScenario extends MATSimApplication {
@@ -103,7 +100,6 @@ public class RunOpenBerlinScenario extends MATSimApplication {
 
 	@Override
 	protected void prepareControler(Controler controler) {
-
 		controler.addOverridingModule(new SimWrapperModule());
 		controler.addOverridingModule(new AbstractModule() {
 			@Override
