@@ -20,6 +20,7 @@ import org.matsim.simwrapper.SimWrapperModule;
 import picocli.CommandLine;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 @CommandLine.Command(header = ":: Open Berlin Scenario ::", version = RunOpenBerlinScenario.VERSION, mixinStandardHelpOptions = true)
 public class RunOpenBerlinScenario extends MATSimApplication {
@@ -42,8 +43,9 @@ public class RunOpenBerlinScenario extends MATSimApplication {
 	@Override
 	protected Config prepareConfig(Config config) {
 
-		// FIXME: only a test
+		// FIXME: only for testing purposes
 		config.controler().setLastIteration(1);
+
 		config.controler().setOverwriteFileSetting(OutputDirectoryHierarchy.OverwriteFileSetting.deleteDirectoryIfExists);
 
 		SimWrapperConfigGroup sw = ConfigUtils.addOrGetModule(config, SimWrapperConfigGroup.class);
@@ -112,20 +114,5 @@ public class RunOpenBerlinScenario extends MATSimApplication {
 
 			}
 		});
-
-		// configure and add decongestion module to controler
-		final DecongestionConfigGroup decongestionSettings = ConfigUtils.addOrGetModule( controler.getConfig(), DecongestionConfigGroup.class );
-
-		decongestionSettings.setWriteOutputIteration(1);
-//		decongestionSettings.setKp(0.0123);
-		decongestionSettings.setKp(0.123);
-		decongestionSettings.setKd(0.0);
-		decongestionSettings.setKi(0.0);
-		decongestionSettings.setMsa(false);
-		decongestionSettings.setTollBlendFactor(1.0);
-		decongestionSettings.setFractionOfIterationsToEndPriceAdjustment(1.0);
-		decongestionSettings.setFractionOfIterationsToStartPriceAdjustment(0.0);
-
-		controler.addOverridingModule(new DecongestionModule(controler.getScenario()) );
 	}
 }

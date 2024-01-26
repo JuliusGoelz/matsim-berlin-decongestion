@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE roadpricing SYSTEM "http://www.matsim.org/files/dtd/roadpricing_v1.dtd">
+
+<roadpricing type="area" name="area_toll">
+	<links>
+	</links>
+
+	<!--this is for all links that are mentioned above (all other links get no toll) -->
+	<cost start_time="05:00" end_time="10:00" amount="10.0"/>
+
+</roadpricing>
