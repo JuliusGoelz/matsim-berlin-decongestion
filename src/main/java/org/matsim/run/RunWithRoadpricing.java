@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RunWithRoadpricing extends RunOpenBerlinScenario {
 
 	// command line options to set toll area and toll amount
-	// Note that this does not make the times of day in which the toll is effective configurable (yet)
+	// TODO: this does not make the times of day in which the toll is effective configurable (yet)
 	// for this, cf. enableTolling()
 	@CommandLine.Mixin
 	private final TollOptions toll = new TollOptions();
@@ -52,7 +52,7 @@ public class RunWithRoadpricing extends RunOpenBerlinScenario {
 		// toll links inside an area
 		Optional<ShpOptions> shpOptions = Optional.of(toll.getShpOptions());
 		shpOptions.ifPresent(shp -> {
-			enableTolling(controler.getScenario()); // TODO Make toll costs configurable via CLI options
+			enableTolling(controler.getScenario());
 		});
 
 	}
