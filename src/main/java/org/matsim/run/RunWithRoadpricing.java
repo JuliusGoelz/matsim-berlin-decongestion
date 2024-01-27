@@ -1,36 +1,26 @@
 package org.matsim.run;
 
-import org.geotools.geometry.jts.JTS;
-import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
 import org.matsim.api.core.v01.Scenario;
-import org.matsim.api.core.v01.network.Link;
-import org.matsim.api.core.v01.network.Network;
-import org.matsim.api.core.v01.network.NetworkFactory;
 import org.matsim.application.MATSimApplication;
-import org.matsim.application.options.SampleOptions;
 import org.matsim.application.options.ShpOptions;
-import org.matsim.contrib.roadpricing.RoadPricing;
-import org.matsim.contrib.roadpricing.RoadPricingConfigGroup;
-import org.matsim.contrib.roadpricing.RoadPricingSchemeImpl;
-import org.matsim.contrib.roadpricing.RoadPricingUtils;
+import org.matsim.contrib.roadpricing.*;
 import org.matsim.core.config.Config;
-import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.controler.Controler;
 import org.matsim.core.utils.geometry.geotools.MGC;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.geometry.Geometry;
-import org.opengis.geometry.TransfiniteSet;
+import org.matsim.core.utils.misc.Time;
 import picocli.CommandLine;
 
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class RunWithRoadpricing extends RunOpenBerlinScenario {
 
-
-	// TODO: Actually provide a suitable shp file to test area tolling
-
+	// command line options to set toll area and toll amount
+	// Note that this does not make the times of day in which the toll is effective configurable (yet)
+	// for this, cf. enableTolling()
 	@CommandLine.Mixin
-	private final ShpOptions shp = new ShpOptions();
+	private final TollOptions toll = new TollOptions();
 
 	public static void main(String[] args) {
 		MATSimApplication.run(RunWithRoadpricing.class, args);
@@ -45,8 +35,8 @@ public class RunWithRoadpricing extends RunOpenBerlinScenario {
 		config = super.prepareConfig(config);
 
 		// configure roadpricing module
-		RoadPricingConfigGroup roadPricingConfig = ConfigUtils.addOrGetModule(config, RoadPricingConfigGroup.class);
-		roadPricingConfig.setTollLinksFile("toll.xml");
+//		RoadPricingConfigGroup roadPricingConfig = ConfigUtils.addOrGetModule(config, RoadPricingConfigGroup.class);
+//		roadPricingConfig.setTollLinksFile("toll.xml");
 
 		return config;
 	}
@@ -60,27 +50,42 @@ public class RunWithRoadpricing extends RunOpenBerlinScenario {
 		RoadPricing.configure(controler);
 
 		// toll links inside an area
-		Optional<ShpOptions> shpOptions = Optional.ofNullable(shp);
+		Optional<ShpOptions> shpOptions = Optional.of(toll.getShpOptions());
 		shpOptions.ifPresent(shp -> {
-			addLinksToTollArea(controler.getScenario(), shp);
+			enableTolling(controler.getScenario()); // TODO Make toll costs configurable via CLI options
 		});
 
 	}
 
-	private void addLinksToTollArea(Scenario sc, ShpOptions shp) {
-		Geometry geom = (Geometry) shp.readFeatures().get(0).getDefaultGeometry();
+	private void enableTolling(Scenario sc) {
+
+		RoadPricingSchemeImpl scheme = RoadPricingUtils.addOrGetMutableRoadPricingScheme(sc);
+
+		/* Configure roadpricing scheme. */
+		RoadPricingUtils.setName(scheme, "area");
+		RoadPricingUtils.setType(scheme, RoadPricingScheme.TOLL_TYPE_AREA);
+		RoadPricingUtils.setDescription(scheme, "Scheme where links inside the area are tolled once per agent");
+
+		// read the provided shape and extract the first feature (should be a polygon)
+		Geometry geom = toll.getShpOptions().getGeometry();
+
+		AtomicInteger linksTolled = new AtomicInteger(); // track how many links are being tolled
+
 		// identify links that are inside the area and add them to the tolled links
-
-		// TODO: Track and log how many links were inside the area and are now tolled
-
 		sc.getNetwork().getLinks().values().parallelStream()
 			.filter(link -> geom.contains(
-				(TransfiniteSet) MGC.coord2Point(link.getCoord())
+				MGC.coord2Point(link.getCoord())
 			))
-			.forEach(link ->
-					RoadPricingUtils.addLink(
-						(RoadPricingSchemeImpl)RoadPricingUtils.getRoadPricingScheme(sc), link.getId()
-					)
+			.forEach(link -> {
+					RoadPricingUtils.addLink(scheme, link.getId());
+					linksTolled.incrementAndGet();
+				}
 			);
+		log.info("Tolling " + linksTolled.get() +
+			" links that are inside the tolling area polygon with a toll of " + toll.getTollAmount());
+		RoadPricingUtils.createAndAddGeneralCost(scheme,
+			Time.parseTime("7:00:00"),
+			Time.parseTime("10:00:00"),
+			toll.getTollAmount());
 	}
 }
