@@ -94,12 +94,13 @@ public class RunOfflineAirPollutionAnalysisByEngineInformation {
 			final String hbefaFileCold = "shared-svn/projects/matsim-germany/hbefa/hbefa-files/v4.1/EFA_ColdStart_Concept_2020_detailed_perTechAverage_Bln_carOnly.csv";
 			final String hbefaFileWarm = "shared-svn/projects/matsim-germany/hbefa/hbefa-files/v4.1/EFA_HOT_Concept_2020_detailed_perTechAverage_Bln_carOnly.csv";
 
+			// FIXME: I have no clue why but I get errors over errors
 			RunOfflineAirPollutionAnalysisByEngineInformation analysis = new RunOfflineAirPollutionAnalysisByEngineInformation(
-					rootDirectory + runDirectory,
-					runId,
-					rootDirectory + hbefaFileWarm,
-					rootDirectory + hbefaFileCold,
-					rootDirectory + runDirectory + "emission-analysis-hbefa-v4.1");
+				runDirectory, //rootDirectory + runDirectory,
+				runId,
+				hbefaFileWarm, //rootDirectory + hbefaFileWarm,
+				hbefaFileCold, //rootDirectory + hbefaFileCold,
+				rootDirectory + runDirectory + "emission-analysis-hbefa-v4.1");
 			analysis.run();
 
 		} else {
