@@ -62,6 +62,11 @@ import org.matsim.vehicles.VehicleUtils;
  */
 
 public class RunOfflineAirPollutionAnalysisByEngineInformation {
+
+	// For me this produces a lot of warnings like:
+	//  "WARN WarmEmissionHandler:126 At time 69707.0, vehicle commercialPersonTraffic_service_Berlin_re_vkz.1033_3_47_car
+	//  enters and leaves traffic without having entered link 121481. Thus, no emissions are calculated for travel along this link."
+
 	private static final Logger log = LogManager.getLogger(RunOfflineAirPollutionAnalysisByEngineInformation.class);
 
 	private final String runDirectory;
@@ -89,12 +94,12 @@ public class RunOfflineAirPollutionAnalysisByEngineInformation {
 			if (!rootDirectory.endsWith("/")) rootDirectory = rootDirectory + "/";
 
 			final String runDirectory = "output/berlin-v6.0-1pct/";
-			final String runId = "berlin-v6.0";
+			final String runId = "withRoadpricing";
 
-			final String hbefaFileCold = "shared-svn/projects/matsim-germany/hbefa/hbefa-files/v4.1/EFA_ColdStart_Concept_2020_detailed_perTechAverage_Bln_carOnly.csv";
-			final String hbefaFileWarm = "shared-svn/projects/matsim-germany/hbefa/hbefa-files/v4.1/EFA_HOT_Concept_2020_detailed_perTechAverage_Bln_carOnly.csv";
+			// TODO: Figure out how to get the files when on the cluster (probably can't upload them)
+			final String hbefaFileCold = "D:/01_DOKUMENTE/Uni/WiSe2324/MATSim_advanced/hbefa-files_v4.1/v4.1/EFA_ColdStart_Concept_2020_detailed_perTechAverage_Bln_carOnly.csv";
+			final String hbefaFileWarm = "D:/01_DOKUMENTE/Uni/WiSe2324/MATSim_advanced/hbefa-files_v4.1/v4.1/EFA_HOT_Concept_2020_detailed_perTechAverage_Bln_carOnly.csv";
 
-			// FIXME: I have no clue why but I get errors over errors
 			RunOfflineAirPollutionAnalysisByEngineInformation analysis = new RunOfflineAirPollutionAnalysisByEngineInformation(
 				runDirectory, //rootDirectory + runDirectory,
 				runId,
@@ -223,8 +228,8 @@ public class RunOfflineAirPollutionAnalysisByEngineInformation {
 			VehicleUtils.setHbefaVehicleCategory(engineInformation, HbefaVehicleCategory.NON_HBEFA_VEHICLE.toString());
 		}
 
-		List<Id<Vehicle>> carVehiclesToChangeToSpecificType = new ArrayList<>();
-
+//		List<Id<Vehicle>> carVehiclesToChangeToSpecificType = new ArrayList<>(); // Yeah this is always empty... No wonder it didn't work
+		List<Id<Vehicle>> carVehiclesToChangeToSpecificType = scenario.getVehicles().getVehicles().keySet().stream().toList(); // change all vehicles
 		final Random rnd = MatsimRandom.getLocalInstance();
 
 		int totalVehiclesCounter = 0;

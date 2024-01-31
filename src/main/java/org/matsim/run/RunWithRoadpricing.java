@@ -6,11 +6,14 @@ import org.matsim.application.MATSimApplication;
 import org.matsim.application.options.ShpOptions;
 import org.matsim.contrib.roadpricing.*;
 import org.matsim.core.config.Config;
+import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.controler.Controler;
 import org.matsim.core.utils.geometry.geotools.MGC;
+import org.matsim.core.utils.io.IOUtils;
 import org.matsim.core.utils.misc.Time;
 import picocli.CommandLine;
 
+import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -59,9 +62,24 @@ public class RunWithRoadpricing extends RunOpenBerlinScenario {
 
 	private void enableTolling(Scenario sc) {
 
-		RoadPricingSchemeImpl scheme = RoadPricingUtils.addOrGetMutableRoadPricingScheme(sc);
+		TollFactor tollFactor = new VehicleTypeSpecificTollFactor(sc);
+
+		// base version without vehicle-specific toll factors:
+//		RoadPricingSchemeImpl scheme = RoadPricingUtils.addOrGetMutableRoadPricingScheme(sc);
+
+		// FIXME: This does not yet work. I copied some code from matsim-libs (RunRoadPricingUsingTollFactorExample.java)
+		//  and this does not line up with the RoadPricingUtils stuff below because it expects a RoadPricingSchemeImpl (not RoadPricingScheme)
+		//  How to fix this? No clue, maybe there is another way to set name and type. If not, I'm fucked
+		// with vehicle-specific toll factors:
+		RoadPricingConfigGroup rpConfig = ConfigUtils.addOrGetModule(sc.getConfig(), RoadPricingConfigGroup.class);
+		URL roadpricingUrl = IOUtils.extendUrl(sc.getConfig().getContext(), rpConfig.getTollLinksFile());
+		RoadPricingScheme scheme = RoadPricingSchemeUsingTollFactor.createAndRegisterRoadPricingSchemeUsingTollFactor(
+			roadpricingUrl, tollFactor, sc
+		);
+
 
 		/* Configure roadpricing scheme. */
+		// FIXME: Errors here:
 		RoadPricingUtils.setName(scheme, "area");
 		RoadPricingUtils.setType(scheme, RoadPricingScheme.TOLL_TYPE_AREA);
 		RoadPricingUtils.setDescription(scheme, "Scheme where links inside the area are tolled once per agent");
