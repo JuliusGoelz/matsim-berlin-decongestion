@@ -8,7 +8,7 @@ import picocli.CommandLine.Option;
 
 import java.nio.file.Path;
 
-public final class TollOptions {
+final class TollOptions {
 	private static final Logger log = LogManager.getLogger(TollOptions.class);
 	private static ShpOptions shp;
 

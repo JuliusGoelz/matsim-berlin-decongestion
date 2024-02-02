@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class SpeedLimitOptions {
+final class SpeedLimitOptions {
 
 	private static final Logger log = LogManager.getLogger(TollOptions.class);
 	private static ShpOptions shp;
