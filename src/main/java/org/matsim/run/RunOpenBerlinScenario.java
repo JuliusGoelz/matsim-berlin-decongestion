@@ -41,7 +41,7 @@ public class RunOpenBerlinScenario extends MATSimApplication {
 	protected Config prepareConfig(Config config) {
 
 		// FIXME: only for testing purposes
-		config.controler().setLastIteration(0);
+		config.controler().setLastIteration(1);
 
 		config.controler().setOverwriteFileSetting(OutputDirectoryHierarchy.OverwriteFileSetting.deleteDirectoryIfExists);
 

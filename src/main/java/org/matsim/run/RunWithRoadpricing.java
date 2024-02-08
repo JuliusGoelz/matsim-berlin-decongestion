@@ -142,8 +142,8 @@ public class RunWithRoadpricing extends RunOpenBerlinScenario {
 		// Pass the configured scheme on and put toll factors on top
 		VehicleTypeSpecificTollFactor tollFactor = new VehicleTypeSpecificTollFactor(sc);
 
-//		return new RoadPricingSchemeUsingTollFactor(scheme, tollFactor); // FIXME:  this does not work for now
-		return scheme; // regular, non-vehicle-specific toll!!!
+		return new RoadPricingSchemeUsingTollFactor(scheme, tollFactor); // FIXME:  this does not work for now
+//		return scheme; // regular, non-vehicle-specific toll!!!
 	}
 
 
@@ -158,7 +158,7 @@ public class RunWithRoadpricing extends RunOpenBerlinScenario {
 		return vehicleType;
 	}
 
-	// FIXME: Remove this method, not needed anymore
+	// TODO: Remove this method, not needed anymore
 	private void changeVehicleAndRoadTypes(Scenario sc) {
 
 		// TODO: Refactor to make configurable in an easy way

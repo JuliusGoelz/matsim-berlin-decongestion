@@ -10,6 +10,8 @@ import org.matsim.contrib.roadpricing.TollFactor;
 import org.matsim.vehicles.Vehicle;
 import org.matsim.vehicles.VehicleType;
 
+import java.util.List;
+
 public class VehicleTypeSpecificTollFactor implements TollFactor {
 	private static final Logger log = LogManager.getLogger(VehicleTypeSpecificTollFactor.class);
 	private final Scenario scenario;
@@ -27,7 +29,14 @@ public class VehicleTypeSpecificTollFactor implements TollFactor {
 		final VehicleType lpgCar = scenario.getVehicles().getVehicleTypes().get(Id.get("lpg", VehicleType.class));
 		final VehicleType hybridPetrolCar = scenario.getVehicles().getVehicleTypes().get(Id.get("hybridPetrol", VehicleType.class));
 		final VehicleType hybridDieselCar = scenario.getVehicles().getVehicleTypes().get(Id.get("hybridDiesel", VehicleType.class));
-		final VehicleType electricCar = scenario.getVehicles().getVehicleTypes().get(Id.get("electricCar", VehicleType.class));
+		final VehicleType electricCar = scenario.getVehicles().getVehicleTypes().get(Id.get("electric", VehicleType.class));
+		final VehicleType petrolFreight = scenario.getVehicles().getVehicleTypes().get(Id.get("petrolFreight", VehicleType.class));
+		final VehicleType dieselFreight = scenario.getVehicles().getVehicleTypes().get(Id.get("dieselFreight", VehicleType.class));
+		final VehicleType cngFreight = scenario.getVehicles().getVehicleTypes().get(Id.get("cngFreight", VehicleType.class));
+		final VehicleType lpgFreight = scenario.getVehicles().getVehicleTypes().get(Id.get("lpgFreight", VehicleType.class));
+		final VehicleType hybridPetrolFreight = scenario.getVehicles().getVehicleTypes().get(Id.get("hybridPetrolFreight", VehicleType.class));
+		final VehicleType hybridDieselFreight = scenario.getVehicles().getVehicleTypes().get(Id.get("hybridDieselFreight", VehicleType.class));
+		final VehicleType electricFreight = scenario.getVehicles().getVehicleTypes().get(Id.get("electricFreight", VehicleType.class));
 
 		VehicleType type;
         try {
@@ -44,25 +53,25 @@ public class VehicleTypeSpecificTollFactor implements TollFactor {
 
 		// check type and return appropriate tollFactor
 		// TODO: Adjust to make sense
-		if (type.equals(petrolCar) || type.equals(hybridPetrolCar)) {
-			log.info("-> " + 2);
+		if (List.of(petrolCar, hybridPetrolCar, petrolFreight, hybridPetrolFreight).contains(type)) {
+//			log.info("-> " + 2);
 			return 2;
-		} else if (type.equals(dieselCar) || type.equals(hybridDieselCar)) {
-			log.info("-> " + 2);
+		} else if (List.of(dieselCar, hybridDieselCar, dieselFreight, hybridDieselFreight).contains(type)) {
+//			log.info("-> " + 2);
 			return 2;
-		} else if (type.equals(cngCar)) {
-			log.info("-> " + 1);
+		} else if (List.of(cngCar, cngFreight).contains(type)) {
+//			log.info("-> " + 1);
 			return 1;
-		} else if (type.equals(lpgCar)) {
-			log.info("-> " + 1);
+		} else if (List.of(lpgCar, lpgFreight).contains(type)) {
+//			log.info("-> " + 1);
 			return 1;
-		} else if (type.equals(electricCar)) {
-			log.info("-> " + 0.5);
+		} else if (List.of(electricCar, electricFreight).contains(type)) {
+//			log.info("-> " + 0.5);
 			return 0.5;
 		} else {
 			// This should not occur because pt is not routed
 			// --> WRONG: It does happen! Is it routed???? (0 is correct tho)
-			log.info("-> " + 0);
+//			log.info("-> " + 0);
 			return 0;
 		}
 	}
