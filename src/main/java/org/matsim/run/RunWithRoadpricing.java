@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Class to run the OpenBerlinScenario with area tolling based on vehicle types.
+ * @author Julius Gölz
  */
 public class RunWithRoadpricing extends RunWithVehicleTypes {
 

@@ -17,13 +17,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class extends RunOpenBerlinScenario and only adds fixed vehicles.
+ * This class extends RunOpenBerlinScenario and only adds fixed vehicles based on a pre-defined distribution.
  * It is used by both decongestion and roadpricing setups.
+ * @author Julius Gölz
  */
 public class RunWithVehicleTypes extends RunOpenBerlinScenario {
 
 	public static void main(String[] args) {
-		MATSimApplication.run(RunWithRoadpricing.class, args);
+		MATSimApplication.run(RunWithVehicleTypes.class, args);
 	}
 
 	@Override

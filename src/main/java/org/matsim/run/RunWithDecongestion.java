@@ -7,6 +7,12 @@ import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.controler.Controler;
 
+/**
+ * Class to run the OpenBerlinScenario with decongestion pricing.
+ * The toll is not dependent on vehicle types, but it extends RunWithVehicleTypes
+ *  to have the same basis as roadpricing to do emission analysis on
+ * @author Julius Gölz
+ */
 public class RunWithDecongestion extends RunWithVehicleTypes {
 
 	public static void main(String[] args) {
