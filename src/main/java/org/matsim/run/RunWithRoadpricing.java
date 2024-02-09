@@ -53,7 +53,7 @@ public class RunWithRoadpricing extends RunOpenBerlinScenario {
 //		RoadPricingConfigGroup roadPricingConfig = ConfigUtils.addOrGetModule(config, RoadPricingConfigGroup.class);
 //		roadPricingConfig.setTollLinksFile("toll.xml");
 
-		// TODO: Change vehicle types!
+		
 
 		return config;
 	}
