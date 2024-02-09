@@ -7,7 +7,7 @@ import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.controler.Controler;
 
-public class RunWithDecongestion extends RunOpenBerlinScenario {
+public class RunWithDecongestion extends RunWithVehicleTypes {
 
 	public static void main(String[] args) {
 		MATSimApplication.run(RunWithDecongestion.class, args);
