@@ -2,32 +2,28 @@ package org.matsim.run;
 
 import org.locationtech.jts.geom.Geometry;
 import org.matsim.api.core.v01.Id;
-import org.matsim.api.core.v01.Identifiable;
 import org.matsim.api.core.v01.Scenario;
+import org.matsim.api.core.v01.TransportMode;
+import org.matsim.api.core.v01.population.*;
 import org.matsim.application.MATSimApplication;
-import org.matsim.application.options.ShpOptions;
 import org.matsim.contrib.emissions.HbefaVehicleCategory;
 import org.matsim.contrib.emissions.VspHbefaRoadTypeMapping;
 import org.matsim.contrib.roadpricing.*;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
+import org.matsim.core.config.groups.QSimConfigGroup;
+import org.matsim.core.config.groups.VehiclesConfigGroup;
 import org.matsim.core.controler.Controler;
 import org.matsim.core.gbl.MatsimRandom;
 import org.matsim.core.utils.geometry.geotools.MGC;
-import org.matsim.core.utils.io.IOUtils;
 import org.matsim.core.utils.misc.Time;
-import org.matsim.vehicles.EngineInformation;
-import org.matsim.vehicles.Vehicle;
-import org.matsim.vehicles.VehicleType;
-import org.matsim.vehicles.VehicleUtils;
+import org.matsim.vehicles.*;
 import picocli.CommandLine;
 
-import java.net.URL;
-import java.util.List;
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 public class RunWithRoadpricing extends RunOpenBerlinScenario {
 
@@ -46,16 +42,58 @@ public class RunWithRoadpricing extends RunOpenBerlinScenario {
 		// change run id and output folder
 		config.controler().setRunId("withRoadpricing");
 		config.controler().setOutputDirectory("output/berlin-v" + VERSION + "-0pct-withRoadpricing");
+		// configure qsim to use vehicles from vehicles definitions
+		config.qsim().setVehiclesSource(QSimConfigGroup.VehiclesSource.fromVehiclesData);
+		config.qsim().setUsePersonIdForMissingVehicleId(false);
+
+		ConfigUtils.addOrGetModule(config, VehiclesConfigGroup.class); // probably not needed
 
 		config = super.prepareConfig(config);
 
-		// configure roadpricing module -- not needed (?)
-//		RoadPricingConfigGroup roadPricingConfig = ConfigUtils.addOrGetModule(config, RoadPricingConfigGroup.class);
-//		roadPricingConfig.setTollLinksFile("toll.xml");
-
-		
-
 		return config;
+	}
+
+	@Override
+	protected void prepareScenario(Scenario scenario) {
+		super.prepareScenario(scenario);
+
+		// network HBEFA types
+		new VspHbefaRoadTypeMapping().addHbefaMappings(scenario.getNetwork());
+
+		RandomVehicleTypeProvider randomVehicleTypeProvider = new RandomVehicleTypeProvider(scenario);
+
+		// Link persons to a vehicle
+		for (Person person : scenario.getPopulation().getPersons().values()) {
+			Id<Vehicle> vehIdCar = VehicleUtils.createVehicleId(person, TransportMode.car);
+			Id<Vehicle> vehIdRide = VehicleUtils.createVehicleId(person, TransportMode.ride);
+			Id<Vehicle> vehIdFreight = VehicleUtils.createVehicleId(person, "freight");
+			VehicleType vehTypeCar = randomVehicleTypeProvider.getVehicleTypeBasedOnDistribution(TransportMode.car); // get a random vehicle type based on pre-defined distribution (currently hardcoded)
+			VehicleType vehTypeFreight = randomVehicleTypeProvider.getVehicleTypeBasedOnDistribution("freight");
+			// Create and add cars
+			Vehicle carVeh = VehicleUtils.createVehicle(
+				vehIdCar,
+				vehTypeCar
+			);
+			scenario.getVehicles().addVehicle(carVeh);
+			Vehicle rideVeh = VehicleUtils.createVehicle(
+				vehIdRide,
+				vehTypeCar
+			);
+			scenario.getVehicles().addVehicle(rideVeh);
+			Vehicle freightVeh = VehicleUtils.createVehicle(
+				vehIdFreight,
+				vehTypeFreight
+			);
+			scenario.getVehicles().addVehicle(freightVeh);
+
+			// map that maps from transport mode to a vehicle id for each person
+			Map<String, Id<Vehicle>> vehicleMap = new HashMap<>();
+			vehicleMap.put(TransportMode.car, vehIdCar);
+			vehicleMap.put(TransportMode.ride, vehIdRide);
+			vehicleMap.put("freight", vehIdFreight);
+			VehicleUtils.insertVehicleIdsIntoAttributes(person, vehicleMap); // assign vehicle ids to person
+		}
+		log.info("Vehicles have been created.");
 	}
 
 	@Override
@@ -67,25 +105,19 @@ public class RunWithRoadpricing extends RunOpenBerlinScenario {
 		RoadPricing.configure(controler);
 
 		// toll links inside an area
-		Optional<ShpOptions> shpOptions = Optional.of(toll.getShpOptions());
-		shpOptions.ifPresent(shp -> {
-			enableTolling(controler.getScenario());
-		});
-
+		RoadPricingScheme scheme = getRoadPricingScheme(controler.getScenario());
+		controler.addOverridingModule(new RoadPricingModule(scheme));
 	}
 
-	private void enableTolling(Scenario sc) {
+	private RoadPricingScheme getRoadPricingScheme(Scenario sc) {
 
-		/* Configure roadpricing scheme. */
-		// base version without vehicle-specific toll factors:
-//		RoadPricingSchemeImpl scheme = RoadPricingUtils.addOrGetMutableRoadPricingScheme(sc);
-		RoadPricingSchemeImpl scheme = new RoadPricingSchemeImpl(sc); // is not public
-		// TODO: so how do I get a scheme without instantly adding it to the scenario?
+		// first create an area pricing scheme
+		RoadPricingSchemeImpl scheme = RoadPricingUtils.addOrGetMutableRoadPricingScheme(sc);
 		RoadPricingUtils.setName(scheme, "area");
 		RoadPricingUtils.setType(scheme, RoadPricingScheme.TOLL_TYPE_AREA);
 		RoadPricingUtils.setDescription(scheme, "Scheme where links inside the area are tolled once per agent");
 
-		// read the provided shape and extract the first feature (should be a polygon)
+		// read the provided shape and extract the first feature (must be a polygon)
 		Geometry geom = toll.getShpOptions().getGeometry();
 
 		AtomicInteger linksTolled = new AtomicInteger(); // track how many links are being tolled
@@ -107,17 +139,26 @@ public class RunWithRoadpricing extends RunOpenBerlinScenario {
 			Time.parseTime("10:00:00"),
 			toll.getTollAmount());
 
-		// Last step: Pass the configured scheme on and put toll factors on top:
-		TollFactor tollFactor = new VehicleTypeSpecificTollFactor(sc);
-		RoadPricingConfigGroup rpConfig = ConfigUtils.addOrGetModule(sc.getConfig(), RoadPricingConfigGroup.class);
-//		URL roadpricingUrl = IOUtils.extendUrl(sc.getConfig().getContext(), rpConfig.getTollLinksFile());
-//		RoadPricingScheme scheme = RoadPricingSchemeUsingTollFactor.createAndRegisterRoadPricingSchemeUsingTollFactor(
-//			roadpricingUrl, tollFactor, sc
-//		);
-		RoadPricingScheme schemeUsingTollFactor = new RoadPricingSchemeUsingTollFactor(scheme, tollFactor);
-		RoadPricingUtils.addRoadPricingScheme(sc, schemeUsingTollFactor);
+		// Pass the configured scheme on and put toll factors on top
+		VehicleTypeSpecificTollFactor tollFactor = new VehicleTypeSpecificTollFactor(sc);
+
+		return new RoadPricingSchemeUsingTollFactor(scheme, tollFactor); // FIXME:  this does not work for now
+//		return scheme; // regular, non-vehicle-specific toll!!!
 	}
 
+
+	private VehicleType addAndRegisterVehicleType(Scenario sc, String vehicleTypeId, String emissionsConcept){
+		VehicleType vehicleType = sc.getVehicles().getFactory().createVehicleType(Id.create(vehicleTypeId, VehicleType.class));
+		sc.getVehicles().addVehicleType(vehicleType);
+		EngineInformation engineInformation = vehicleType.getEngineInformation();
+		VehicleUtils.setHbefaVehicleCategory(engineInformation, HbefaVehicleCategory.PASSENGER_CAR.toString());
+		VehicleUtils.setHbefaTechnology(engineInformation, "average");
+		VehicleUtils.setHbefaSizeClass(engineInformation, "average");
+		VehicleUtils.setHbefaEmissionsConcept(engineInformation, emissionsConcept);
+		return vehicleType;
+	}
+
+	// TODO: Remove this method, not needed anymore
 	private void changeVehicleAndRoadTypes(Scenario sc) {
 
 		// TODO: Refactor to make configurable in an easy way
@@ -128,8 +169,8 @@ public class RunWithRoadpricing extends RunOpenBerlinScenario {
 		final double cngShare = 0.001653867;
 		// "Plug-in Hybrid": 0.02071945
 		// "Hybrid": 0.046918964 --> Mild-Hybrid, sowohl Benzin als auch Diesel
-		final double hybridPetrolShare = 0.005743607878685; // FIXME: OLD
-		final double hybridDieselShare = 0.00014232617104426; // FIXME: OLD
+		final double hybridPetrolShare = 0.005743607878685; // plug-in hybrid FIXME: OLD
+		final double hybridDieselShare = 0.00014232617104426; // plug-in hybrid FIXME: OLD
 		final double electricShare = 0.020067541;
 
 		// network
@@ -164,21 +205,14 @@ public class RunWithRoadpricing extends RunOpenBerlinScenario {
 			VehicleUtils.setHbefaVehicleCategory(engineInformation, HbefaVehicleCategory.NON_HBEFA_VEHICLE.toString());
 		}
 
-		List<Id<Vehicle>> carVehiclesToChangeToSpecificType = sc.getVehicles().getVehicles().keySet().stream().toList(); // change all vehicles
+//		List<Id<Vehicle>> carVehiclesToChangeToSpecificType = sc.getVehicles().getVehicles().keySet().stream().toList(); // change all vehicles
 		final Random rnd = MatsimRandom.getLocalInstance();
 
-		/*int totalVehiclesCounter = 0;
-		// randomly change some vehicle types
-		List<Id<Vehicle>> vehiclesToChangeToElectric = sc.getVehicles().getVehicles().values().stream()
-			.filter(vehicle -> vehicle.getType().getId().equals(defaultCarVehicleType.getId()))
-			.filter(vehicle -> !vehicle.getId().toString().contains("freight")) // some freight vehicles have the type "car", skip them...
-			.filter(vehicle -> rnd.nextDouble() < electricShare)
-			.map(Identifiable::getId)
-			.collect(Collectors.toList());*/
+		log.info(sc.getVehicles().getVehicles());
 
 		// assume: freight vehicle types have the same distribution
 		// TODO: Consider splitting it into private cars and freight vehicles
-		for (Id<Vehicle> id : carVehiclesToChangeToSpecificType) {
+		for (Id<Vehicle> id : sc.getVehicles().getVehicles().keySet()) {
 			sc.getVehicles().removeVehicle(id);
 
 			VehicleType vehicleType;
@@ -206,16 +240,6 @@ public class RunWithRoadpricing extends RunOpenBerlinScenario {
 			sc.getVehicles().addVehicle(vehicleNew);
 			log.info("Type for vehicle " + id + " changed to: " + vehicleType.getId().toString());
 		}
-	}
-
-	private VehicleType addAndRegisterVehicleType(Scenario sc, String vehicleTypeId, String emissionsConcept){
-		VehicleType vehicleType = sc.getVehicles().getFactory().createVehicleType(Id.create(vehicleTypeId, VehicleType.class));
-		sc.getVehicles().addVehicleType(vehicleType);
-		EngineInformation engineInformation = vehicleType.getEngineInformation();
-		VehicleUtils.setHbefaVehicleCategory(engineInformation, HbefaVehicleCategory.PASSENGER_CAR.toString());
-		VehicleUtils.setHbefaTechnology(engineInformation, "average");
-		VehicleUtils.setHbefaSizeClass(engineInformation, "average");
-		VehicleUtils.setHbefaEmissionsConcept(engineInformation, emissionsConcept);
-		return vehicleType;
+		log.info("Done changing vehicle types.");
 	}
 }
