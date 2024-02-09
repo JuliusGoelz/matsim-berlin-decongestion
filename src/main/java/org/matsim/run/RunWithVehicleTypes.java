@@ -5,13 +5,11 @@ import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.TransportMode;
 import org.matsim.api.core.v01.population.Person;
 import org.matsim.application.MATSimApplication;
-import org.matsim.contrib.emissions.HbefaVehicleCategory;
 import org.matsim.contrib.emissions.VspHbefaRoadTypeMapping;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.groups.QSimConfigGroup;
 import org.matsim.core.config.groups.VehiclesConfigGroup;
-import org.matsim.vehicles.EngineInformation;
 import org.matsim.vehicles.Vehicle;
 import org.matsim.vehicles.VehicleType;
 import org.matsim.vehicles.VehicleUtils;
@@ -47,6 +45,7 @@ public class RunWithVehicleTypes extends RunOpenBerlinScenario {
 		// network HBEFA types
 		new VspHbefaRoadTypeMapping().addHbefaMappings(scenario.getNetwork());
 
+		// this also creates the vehicle types initally:
 		RandomVehicleTypeProvider randomVehicleTypeProvider = new RandomVehicleTypeProvider(scenario);
 
 		// Link persons to a vehicle
@@ -81,17 +80,6 @@ public class RunWithVehicleTypes extends RunOpenBerlinScenario {
 			VehicleUtils.insertVehicleIdsIntoAttributes(person, vehicleMap); // assign vehicle ids to person
 		}
 		log.info("Vehicles have been created.");
-	}
-
-	private VehicleType addAndRegisterVehicleType(Scenario sc, String vehicleTypeId, String emissionsConcept){
-		VehicleType vehicleType = sc.getVehicles().getFactory().createVehicleType(Id.create(vehicleTypeId, VehicleType.class));
-		sc.getVehicles().addVehicleType(vehicleType);
-		EngineInformation engineInformation = vehicleType.getEngineInformation();
-		VehicleUtils.setHbefaVehicleCategory(engineInformation, HbefaVehicleCategory.PASSENGER_CAR.toString());
-		VehicleUtils.setHbefaTechnology(engineInformation, "average");
-		VehicleUtils.setHbefaSizeClass(engineInformation, "average");
-		VehicleUtils.setHbefaEmissionsConcept(engineInformation, emissionsConcept);
-		return vehicleType;
 	}
 }
 
