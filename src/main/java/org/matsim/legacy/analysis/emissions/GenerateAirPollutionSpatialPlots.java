@@ -60,7 +60,7 @@ public abstract class GenerateAirPollutionSpatialPlots {
 
         final double gridSize = 100.;
         final double scaleFactor = 100.;
-        final String runDir = rootDirectory + "public-svn/matsim/scenarios/countries/de/berlin/berlin-v5.4-1pct/output-berlin-v5.4-1pct/";
+        final String runDir = rootDirectory + "output/berlin-v6.0-1pct-withRoadpricing/";
         final String runId = "berlin-v5.4-1pct";
         final String events = runDir + runId + ".emission.events.offline.xml.gz";
         final String configFile = runDir + runId + "output_config.xml";

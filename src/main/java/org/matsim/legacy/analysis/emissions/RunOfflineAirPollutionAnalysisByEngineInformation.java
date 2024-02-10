@@ -241,6 +241,7 @@ public class RunOfflineAirPollutionAnalysisByEngineInformation {
 			.map(Identifiable::getId)
 			.collect(Collectors.toList());
 
+		// FIXME: Values are not up to date
 		final double petrolShare = 0.512744724750519;
 		final double dieselShare = 0.462841421365738;
 		final double lpgShare = 0.011381645;
