@@ -48,9 +48,6 @@ public class VehicleTypeSpecificTollFactor implements TollFactor {
 			type = scenario.getTransitVehicles().getVehicles().get(vehicleId).getType();
 		}
 
-		log.info("TollFactor for vehicle of type: " +
-			type.getId().toString());
-
 		// check type and return appropriate tollFactor
 		// TODO: Adjust to make sense
 		if (List.of(petrolCar, hybridPetrolCar, petrolFreight, hybridPetrolFreight).contains(type)) {

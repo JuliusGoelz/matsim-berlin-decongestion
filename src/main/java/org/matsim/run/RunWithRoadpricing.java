@@ -2,6 +2,7 @@ package org.matsim.run;
 
 import org.locationtech.jts.geom.Geometry;
 import org.matsim.api.core.v01.Scenario;
+import org.matsim.api.core.v01.network.Link;
 import org.matsim.application.MATSimApplication;
 import org.matsim.contrib.roadpricing.*;
 import org.matsim.core.config.Config;
@@ -10,6 +11,7 @@ import org.matsim.core.utils.geometry.geotools.MGC;
 import org.matsim.core.utils.misc.Time;
 import picocli.CommandLine;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -64,10 +66,11 @@ public class RunWithRoadpricing extends RunWithVehicleTypes {
 		AtomicInteger linksTolled = new AtomicInteger(); // track how many links are being tolled
 
 		// identify links that are inside the area and add them to the tolled links
+		//  but don't add highways (+ on-/off-ramps)
 		sc.getNetwork().getLinks().values().parallelStream()
 			.filter(link -> geom.contains(
 				MGC.coord2Point(link.getCoord())
-			))
+			) && !(link.getFreespeed() > 14)) // > 50 km/h
 			.forEach(link -> {
 					RoadPricingUtils.addLink(scheme, link.getId());
 					linksTolled.incrementAndGet();
@@ -83,7 +86,7 @@ public class RunWithRoadpricing extends RunWithVehicleTypes {
 		// Pass the configured scheme on and put toll factors on top
 		VehicleTypeSpecificTollFactor tollFactor = new VehicleTypeSpecificTollFactor(sc);
 
-		return new RoadPricingSchemeUsingTollFactor(scheme, tollFactor); // FIXME:  this does not work for now
+		return new RoadPricingSchemeUsingTollFactor(scheme, tollFactor);
 //		return scheme; // regular, non-vehicle-specific toll!!!
 	}
 
