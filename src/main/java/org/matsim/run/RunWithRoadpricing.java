@@ -31,11 +31,9 @@ public class RunWithRoadpricing extends RunWithVehicleTypes {
 	@Override
 	protected Config prepareConfig(Config config) {
 		// change run id and output folder
-		config.controler().setRunId("withRoadpricing");
-		config.controler().setOutputDirectory("output/berlin-v" + VERSION + "-0pct-withRoadpricing");
-
+		runId = "withRoadpricing";
+		// This needs to happen after setting output directory because 0pct is being replaced with the appropriate value in RunOpenBerlinScenario
 		config = super.prepareConfig(config);
-
 		return config;
 	}
 

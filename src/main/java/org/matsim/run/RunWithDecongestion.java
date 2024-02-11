@@ -21,9 +21,11 @@ public class RunWithDecongestion extends RunWithVehicleTypes {
 
 	@Override
 	protected Config prepareConfig(Config config) {
+		// No. of iterations is set in RunWithVehicleTypes
+
 		// change run id and output folder
-		config.controler().setRunId("withDecongestion");
-		config.controler().setOutputDirectory("output/berlin-v" + VERSION + "-0pct-withDecongestion");
+		runId = "withDecongestion";
+		// This needs to happen after setting output directory because 0pct is being replaced with the appropriate value in RunOpenBerlinScenario
 		config = super.prepareConfig(config);
 		return config;
 	}
@@ -38,7 +40,7 @@ public class RunWithDecongestion extends RunWithVehicleTypes {
 
 		decongestionSettings.setWriteOutputIteration(1);
 //		decongestionSettings.setKp(0.0123);
-		decongestionSettings.setKp(0.123);
+		decongestionSettings.setKp(0.003); // cf. Ihab's doctoral thesis pg. 53
 		decongestionSettings.setKd(0.0);
 		decongestionSettings.setKi(0.0);
 		decongestionSettings.setMsa(false);
