@@ -1,5 +1,5 @@
 header:
-  title: Comparing Decongestion & Area Pricing (roadpricing)
+  title: Congestion and Delays
 
 layout:
   rowCapacityAbsolute: # contains one map per run with the capacity usage
@@ -140,6 +140,7 @@ layout:
       type: 'bar'
       width: 5
       dataset: 'src/main/python/output/total_delays.csv'
-      x: 'iteration'
-      xAxisName: 'Iteration'
-      yAxisName: 'Distance'
+      x: 'scenario'
+      columns: ['delays']
+      xAxisName: 'Scenario'
+      yAxisName: 'Total delays [hrs]'

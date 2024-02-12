@@ -10,8 +10,6 @@ import org.matsim.core.utils.geometry.geotools.MGC;
 import org.matsim.core.utils.misc.Time;
 import picocli.CommandLine;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * Class to run the OpenBerlinScenario with area tolling based on vehicle types.
  * @author Julius Gölz

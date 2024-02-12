@@ -16,7 +16,7 @@ def get_link_total_delays(
                     row["lane_km"] * 1000 / row["freespeed"]
                     - row["lane_km"] * 1000 / row["avg_speed"]
                 )
-                * row["simulated_traffic_volume"]
+                * row["simulated_traffic_volume"] / 3600
             )
         )
         [
