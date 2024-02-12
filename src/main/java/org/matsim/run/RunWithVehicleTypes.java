@@ -41,6 +41,8 @@ public class RunWithVehicleTypes extends RunOpenBerlinScenario {
 		ConfigUtils.addOrGetModule(config, VehiclesConfigGroup.class); // probably not needed?
 		config.controler().setRunId(runId);
 		config.controler().setOutputDirectory("output/berlin-v" + VERSION + "-0pct-" + runId);
+		config.controler().setWriteEventsInterval(50);
+		config.controler().setWritePlansInterval(50);
 
 		// This needs to happen after setting output directory because 0pct is being replaced with the appropriate value in RunOpenBerlinScenario
 		config = super.prepareConfig(config);

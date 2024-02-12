@@ -70,11 +70,14 @@ for (name, path) in all_paths.items():
     network_with_delays = (network_with_delays
                            .merge(delays, how="left", on="link_id", suffixes=[None, f"_{name}"]))
 
-# save the network as gpkg
+# save the network as gpkg and as csv
 
 network_with_delays.to_file("../output/network_with_delays.gpkg")
+network_with_delays.drop("geometry").to_csv("../output/link_delays.csv")
+
 
 # calculate total delays
+network_with_delays: pd.DataFrame
 
 total_delays: pd.DataFrame = (
     network_with_delays
@@ -83,6 +86,9 @@ total_delays: pd.DataFrame = (
          "total_delays_withDecongestion": "sum",
          "total_delays_withRoadpricing": "sum"}
         )
+    .rename(columns={"total_delays": "Basecase", "total_delays_withDecongestion": "Decongestion", "total_delays_withRoadpricing": "Roadpricing"})
+    .melt(value_vars=["Basecase", "Decongestion", "Roadpricing"],
+          var_name="scenario", value_name="delays")
     )
 
 # save total delays

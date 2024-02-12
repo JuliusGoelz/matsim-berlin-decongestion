@@ -39,7 +39,6 @@ public class RunWithDecongestion extends RunWithVehicleTypes {
 		final DecongestionConfigGroup decongestionSettings = ConfigUtils.addOrGetModule( controler.getConfig(), DecongestionConfigGroup.class );
 
 		decongestionSettings.setWriteOutputIteration(1);
-//		decongestionSettings.setKp(0.0123);
 		decongestionSettings.setKp(0.003); // cf. Ihab's doctoral thesis pg. 53
 		decongestionSettings.setKd(0.0);
 		decongestionSettings.setKi(0.0);

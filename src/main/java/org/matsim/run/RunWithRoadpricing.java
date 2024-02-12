@@ -2,7 +2,6 @@ package org.matsim.run;
 
 import org.locationtech.jts.geom.Geometry;
 import org.matsim.api.core.v01.Scenario;
-import org.matsim.api.core.v01.network.Link;
 import org.matsim.application.MATSimApplication;
 import org.matsim.contrib.roadpricing.*;
 import org.matsim.core.config.Config;
@@ -11,7 +10,6 @@ import org.matsim.core.utils.geometry.geotools.MGC;
 import org.matsim.core.utils.misc.Time;
 import picocli.CommandLine;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -34,8 +32,7 @@ public class RunWithRoadpricing extends RunWithVehicleTypes {
 	protected Config prepareConfig(Config config) {
 		// change run id and output folder
 		runId = "withRoadpricing";
-		// This needs to happen after setting output directory because 0pct is being replaced with the appropriate value in RunOpenBerlinScenario
-		config = super.prepareConfig(config);
+		config = super.prepareConfig(config); // needs to happen last!
 		return config;
 	}
 
@@ -63,24 +60,21 @@ public class RunWithRoadpricing extends RunWithVehicleTypes {
 		// read the provided shape and extract the first feature (must be a polygon)
 		Geometry geom = toll.getShpOptions().getGeometry();
 
-		AtomicInteger linksTolled = new AtomicInteger(); // track how many links are being tolled
-
 		// identify links that are inside the area and add them to the tolled links
 		//  but don't add highways (+ on-/off-ramps)
 		sc.getNetwork().getLinks().values().parallelStream()
 			.filter(link -> geom.contains(
 				MGC.coord2Point(link.getCoord())
 			) && !(link.getFreespeed() > 14)) // > 50 km/h
-			.forEach(link -> {
-					RoadPricingUtils.addLink(scheme, link.getId());
-					linksTolled.incrementAndGet();
-				}
+			.forEach(link -> RoadPricingUtils.addLink(scheme, link.getId())
 			);
-		log.info("Tolling " + linksTolled.get() +
-			" links that are inside the tolling area polygon with a base toll of " + toll.getTollAmount());
 		RoadPricingUtils.createAndAddGeneralCost(scheme,
-			Time.parseTime("7:00:00"),
+			Time.parseTime("6:30:00"),
 			Time.parseTime("10:00:00"),
+			toll.getTollAmount());
+		RoadPricingUtils.createAndAddGeneralCost(scheme,
+			Time.parseTime("16:00:00"),
+			Time.parseTime("19:00:00"),
 			toll.getTollAmount());
 
 		// Pass the configured scheme on and put toll factors on top
