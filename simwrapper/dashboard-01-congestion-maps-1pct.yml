@@ -1,0 +1,156 @@
+header:
+  title: Congestion and Delays
+
+layout:
+  rowCapacityAbsolute: # contains one map per run with the capacity usage
+    - title: 'Base Case'
+      description: 'Capacity usage'
+      type: links
+      height: 8
+      props:
+        network: 'output/berlin-v6.0-1pct-withVehicleTypes/withVehicleTypes.output_network.xml.gz'
+        projection: EPSG:25832
+        zoom: 9.5
+        center:
+            - 13.4
+            - 52.51
+        # showDifferences: true
+        datasets:
+          csvFile: 'output/berlin-v6.0-1pct-withVehicleTypes/analysis/traffic/traffic_stats_by_link_daily.csv'
+          # csvBase: '../base/output/accidentCosts.csv.gz'
+        display:
+          color:
+            dataset: csvFile
+            columnName: road_capacity_utilization
+            colorRamp:
+              ramp: RdBu
+              steps: 9
+          width:
+            dataset: csvFile
+            columnName: simulated_traffic_volume
+            scaleFactor: 10000
+    - title: 'Decongestion'
+      description: 'Capacity usage'
+      type: links
+      height: 8
+      props:
+        network: 'output/berlin-v6.0-1pct-withDecongestion/withDecongestion.output_network.xml.gz'
+        projection: EPSG:25832
+        zoom: 9.5
+        center:
+            - 13.4
+            - 52.51
+        # showDifferences: true
+        datasets:
+          csvFile: 'output/berlin-v6.0-1pct-withDecongestion/analysis/traffic/traffic_stats_by_link_daily.csv' 
+          # csvBase: '../base/output/accidentCosts.csv.gz'
+        display:
+          color:
+            dataset: csvFile
+            columnName: road_capacity_utilization
+            colorRamp:
+              ramp: RdBu
+              steps: 9
+          width:
+            dataset: csvFile
+            columnName: simulated_traffic_volume
+            scaleFactor: 10000
+    - title: 'Roadpricing'
+      description: 'Capacity usage'
+      type: links
+      height: 8
+      props:
+        network: 'output/berlin-v6.0-1pct-withRoadpricing/withRoadpricing.output_network.xml.gz'
+        projection: EPSG:25832
+        zoom: 9.5
+        center:
+            - 13.4
+            - 52.51
+        # showDifferences: true
+        datasets:
+          csvFile: 'output/berlin-v6.0-1pct-withRoadpricing/analysis/traffic/traffic_stats_by_link_daily.csv'
+          # csvBase: '../base/output/accidentCosts.csv.gz'
+        display:
+          color:
+            dataset: csvFile
+            columnName: road_capacity_utilization
+            colorRamp:
+              ramp: RdBu
+              steps: 9
+          width:
+            dataset: csvFile
+            columnName: simulated_traffic_volume
+            scaleFactor: 10000
+  rowCapacityRelative:
+    - title: 'Decongestion'
+      description: 'Capacity usage compared to base case'
+      type: links
+      height: 8
+      props:
+        network: 'output/berlin-v6.0-1pct-withDecongestion/withDecongestion.output_network.xml.gz'
+        projection: EPSG:25832
+        zoom: 9.5
+        center:
+            - 13.4
+            - 52.51
+        showDifferences: true
+        datasets:
+          csvFile: 'output/berlin-v6.0-1pct-withDecongestion/analysis/traffic/traffic_stats_by_link_daily.csv'
+          csvBase: 'output/berlin-v6.0-1pct-withVehicleTypes/analysis/traffic/traffic_stats_by_link_daily.csv'
+        display:
+          color:
+            dataset: csvFile
+            columnName: road_capacity_utilization
+            colorRamp:
+              ramp: RdBu
+              steps: 9
+          width:
+            dataset: csvFile
+            columnName: simulated_traffic_volume
+            scaleFactor: 10000
+    - title: 'Roadpricing'
+      description: 'Capacity usage compared to base case'
+      type: links
+      height: 8
+      props:
+        network: 'output/berlin-v6.0-1pct-withRoadpricing/withRoadpricing.output_network.xml.gz'
+        projection: EPSG:25832
+        zoom: 9.5
+        center:
+            - 13.4
+            - 52.51
+        showDifferences: true
+        datasets:
+          csvFile: 'output/berlin-v6.0-1pct-withRoadpricing/analysis/traffic/traffic_stats_by_link_daily.csv'
+          csvBase: 'output/berlin-v6.0-1pct-withVehicleTypes/analysis/traffic/traffic_stats_by_link_daily.csv'
+        display:
+          color:
+            dataset: csvFile
+            columnName: road_capacity_utilization
+            colorRamp:
+              ramp: RdBu
+              steps: 9
+          width:
+            dataset: csvFile
+            columnName: simulated_traffic_volume
+            scaleFactor: 10000
+  rowDelaysChart:
+    - title: 'Total delays'
+      description: 'Total amount of delays for persons using network modes [hrs]'
+      type: 'bar'
+      height: 6
+      dataset: 'src/main/python/output/total_delays.csv'
+      x: 'x'
+      columns: ['Basecase', 'Decongestion', 'Roadpricing']
+      xAxisName: 'Scenario'
+      yAxisName: 'Total delays [hrs]'
+  # rowRelativeDelays:
+    - title: 'Relative change in delays compared to basecase'
+      description: 'Relative change in delays for persons using network modes compared to the basecase'
+      type: 'bar'
+      height: 6
+      dataset: 'src/main/python/output/relative_delays.csv'
+      x: 'x'
+      columns: ['Basecase', 'Decongestion', 'Roadpricing']
+      xAxisName: 'Scenario'
+      yAxisName: 'Relative Change'

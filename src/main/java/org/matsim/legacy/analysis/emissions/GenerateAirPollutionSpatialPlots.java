@@ -60,27 +60,32 @@ public abstract class GenerateAirPollutionSpatialPlots {
 
         final double gridSize = 100.;
         final double scaleFactor = 100.;
-        final String runDir = rootDirectory + "output/berlin-v6.0-1pct-withRoadpricing/";
-        final String runId = "berlin-v5.4-1pct";
-        final String events = runDir + runId + ".emission.events.offline.xml.gz";
-        final String configFile = runDir + runId + "output_config.xml";
-        final String networkFile = runDir + runId + "output_network.xml.gz";
-        final String outputFile = runDir + runId + ".emissions." + Pollutant.NOx + ".csv";
+        final String runDir = rootDirectory + "output/berlin-v6.0-1pct-withVehicleTypes/";
+//        final String runDir = rootDirectory + "output/berlin-v6.0-1pct-withDecongestion/";
+//        final String runDir = rootDirectory + "output/berlin-v6.0-1pct-withRoadpricing/";
+        final String runId = "withVehicleTypes";
+//        final String runId = "withDecongestion";
+//        final String runId = "withRoadpricing";
+        final String events = runDir + "analysis/emissions/" + runId + ".emission.events.offline.xml.gz";
+        final String configFile = runDir + runId + ".output_config.xml";
+        final String networkFile = runDir + runId + ".output_network.xml.gz";
+        final String outputFile = runDir + "analysis/emissions/" + runId + ".emissions." + Pollutant.NOx + ".csv";
 
         // filter the network onto the bounding box. This way only the links within the bounding box will collect emissions
         var boundingBox = createBoundingBox();
 
         Config config = ConfigUtils.loadConfig(configFile);
 
-        var filteredNetwork = NetworkUtils.readNetwork(networkFile, config).getLinks().values().parallelStream()
-                .filter(link -> boundingBox.covers(MGC.coord2Point(link.getFromNode().getCoord())) || boundingBox.covers(MGC.coord2Point(link.getToNode().getCoord())))
-                .collect(NetworkUtils.getCollector(config));
+//        var filteredNetwork = NetworkUtils.readNetwork(networkFile, config).getLinks().values().parallelStream()
+//                .filter(link -> boundingBox.covers(MGC.coord2Point(link.getFromNode().getCoord())) || boundingBox.covers(MGC.coord2Point(link.getToNode().getCoord())))
+//                .collect(NetworkUtils.getCollector(config));
 
         // do the actual rastering. Reducing the radius will lead to less smoothed emissions
         // reduce to 0, to only draw emissions onto cells which are covered by a link.
-        var rasterMap = FastEmissionGridAnalyzer.processEventsFile(events, filteredNetwork, gridSize, 20);
+        var rasterMap = FastEmissionGridAnalyzer.processEventsFile(events, NetworkUtils.readNetwork(networkFile, config), gridSize, 20);
 
         // write the raster for nox
+//		var debug = rasterMap.entrySet();
         var noxRaster = rasterMap.get(Pollutant.NOx);
         try (CSVPrinter printer = new CSVPrinter(new FileWriter(outputFile), CSVFormat.TDF)) {
 

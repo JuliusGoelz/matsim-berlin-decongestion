@@ -1,0 +1,34 @@
+header:
+  title: Trip stats
+
+layout:
+  rowTripDuration:
+    - title: 'Total time spent travelling'
+      description: 'Comparing total time spent travelling between base, decongestion and roadpricing scenarios'
+      type: 'bar'
+      # width: 3
+      dataset: 'src/main/python/output/trips_duration.csv'
+      x: 'mode'
+      columns: ['basecase', 'decongestion', 'roadpricing']
+      xAxisName: 'Mode'
+      yAxisName: 'Total time spent travelling [hrs]'
+  rowTripDistances:
+    - title: 'Average trip distance'
+      description: 'Comparing average trip distance between base, decongestion and roadpricing scenarios'
+      type: 'bar'
+      # width: 3
+      dataset: 'src/main/python/output/trips_avg_dist.csv'
+      x: 'mode'
+      columns: ['basecase', 'decongestion', 'roadpricing']
+      xAxisName: 'Mode'
+      yAxisName: 'Average trip distance [km]'
+  rowTripSpeeds:
+    - title: 'Average travelling speeds'
+      description: 'Comparing average travelling speeds between base, decongestion and roadpricing scenarios'
+      type: 'bar'
+      # width: 3
+      dataset: 'src/main/python/output/trips_avg_speed.csv'
+      x: 'mode'
+      columns: ['basecase', 'decongestion', 'roadpricing']
+      xAxisName: 'Mode'
+      yAxisName: 'Average speed of travel [kph]'

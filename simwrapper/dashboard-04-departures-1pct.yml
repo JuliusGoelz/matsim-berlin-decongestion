@@ -1,0 +1,92 @@
+header:
+  title: Departures
+
+layout:
+  rowBasecase:
+    - type: plotly
+      title: Basecase
+      description: Departures in the basecase by hour
+      datasets:
+        dataset:
+          file: output/berlin-v6.0-1pct-withVehicleTypes/analysis/population/trip_purposes_by_hour.csv
+          aggregate:
+            target: departure
+            groupBy:
+            - h
+            func: SUM
+      traces:
+      - x: $dataset.h
+        "y": $dataset.departure
+        orientation: v
+        type: bar
+        # name: $dataset.purpose
+        # colorRamp: Spectral
+      layout:
+        xaxis:
+          title: Hour
+          color: '#444'
+          type: '-'
+        # barmode: stack
+        yaxis:
+          title: Share
+          color: '#444'
+          type: '-'
+  rowDecongestion:
+    - type: plotly
+      title: Decongestion
+      description: Departures in the decongestion scenario by hour
+      datasets:
+        dataset:
+          file: output/berlin-v6.0-1pct-withDecongestion/analysis/population/trip_purposes_by_hour.csv
+          aggregate:
+            target: departure
+            groupBy:
+            - h
+            func: SUM
+      traces:
+      - x: $dataset.h
+        "y": $dataset.departure
+        orientation: v
+        type: bar
+        # name: $dataset.purpose
+        # colorRamp: Spectral
+      layout:
+        xaxis:
+          title: Hour
+          color: '#444'
+          type: '-'
+        # barmode: stack
+        yaxis:
+          title: Share
+          color: '#444'
+          type: '-'
+  rowRoadpricing:
+    - type: plotly
+      title: Roadpricing
+      description: Departures in the roadpricing scenario by hour
+      datasets:
+        dataset:
+          file: output/berlin-v6.0-1pct-withRoadpricing/analysis/population/trip_purposes_by_hour.csv
+          aggregate:
+            target: departure
+            groupBy:
+            - h
+            func: SUM
+      traces:
+      - x: $dataset.h
+        "y": $dataset.departure
+        orientation: v
+        type: bar
+        # name: $dataset.purpose
+        # colorRamp: Spectral
+      layout:
+        xaxis:
+          title: Hour
+          color: '#444'
+          type: '-'
+          limit: 30
+        # barmode: stack
+        yaxis:
+          title: Share
+          color: '#444'
+          type: '-'

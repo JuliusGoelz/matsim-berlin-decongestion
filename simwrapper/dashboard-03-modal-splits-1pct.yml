@@ -1,0 +1,62 @@
+header:
+  title: Modal Split
+
+layout:
+  rowModalSplit:
+    - title: 'Modal Split'
+      description: 'Comparing the modal split between base, decongestion and roadpricing scenarios'
+      height: 10
+      type: 'bar'
+      stacked: true
+      dataset: 'src/main/python/output/modal_splits.csv'
+      x: 'scenario'
+      columns: ['bike', 'car', 'freight', 'pt', 'ride', 'walk']
+      xAxisName: 'Scenario'
+      yAxisName: 'Mode share'
+  rowRelativeChange:
+    - title: 'Relative Change (Modal Split)'
+      description: 'Comparing the relative change of decongestion/roadpricing scenarios compared to the basecase.'
+      type: 'bar'
+      # width: 3
+      height: 7
+      dataset: 'src/main/python/output/modal_splits_relative.csv'
+      x: 'mode'
+      columns: ['decongestion_rel', 'roadpricing_rel']
+      legendTitles: ["Decongestion", "Roadpricing"]
+      xAxisName: 'Mode'
+      yAxisName: 'Change in mode share'
+  modalDistanceDistribution:
+    - type: plotly
+      title: Modal distance distribution
+      datasets:
+        datasetBasecase:
+          file: output/berlin-v6.0-1pct-withVehicleTypes/analysis/population/mode_share_per_dist.csv
+          constant:
+            source: BC
+        datasetDecongestion:
+          file: output/berlin-v6.0-1pct-withDecongestion/analysis/population/mode_share_per_dist.csv
+          constant:
+            source: DCNG
+        datasetRoadpricing:
+          file: output/berlin-v6.0-1pct-withRoadpricing/analysis/population/mode_share_per_dist.csv
+          constant:
+            source: RP
+      traces:
+      - x: $dataset.dist_group
+        "y": $dataset.share
+        orientation: v
+        type: bar
+        name: $dataset.main_mode
+      layout:
+        xaxis:
+          title: Distance group
+          color: '#444'
+          type: '-'
+        barmode: stack
+        yaxis:
+          title: Share
+          color: '#444'
+          type: '-'
+      mergeDatasets: true
+      multiIndex:
+        dist_group: source

@@ -27,7 +27,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Class to analyze emissions from simulation output based on the vehicle types from the simulation.
@@ -37,7 +39,6 @@ import java.util.Map;
 public class RunOfflineAirPollutionAnalysisByVehicleInformation {
 
 	// !!!!! NOT YET TESTED !!!!!
-
 
 	// For me this produces a lot of warnings like:
 	//  "WARN WarmEmissionHandler:126 At time 69707.0, vehicle commercialPersonTraffic_service_Berlin_re_vkz.1033_3_47_car
@@ -64,22 +65,29 @@ public class RunOfflineAirPollutionAnalysisByVehicleInformation {
 	public static void main(String[] args) throws IOException {
 
 		if (args.length == 1) {
-			String rootDirectory = args[0];
+			String rootDirectory = args[0]; // just put a dot '.' as argument to use the current directory
 			if (!rootDirectory.endsWith("/")) rootDirectory = rootDirectory + "/";
 
-			final String runDirectory = "output/berlin-v6.0-1pct/";
+//			final String runDirectory = "output/berlin-v6.0-1pct-withVehicleTypes/";
+//			final String runDirectory = "output/berlin-v6.0-1pct-withDecongestion/";
+			final String runDirectory = "output/berlin-v6.0-1pct-withRoadpricing/";
+//			final String runId = "withVehicleTypes";
+//			final String runId = "withDecongestion";
 			final String runId = "withRoadpricing";
 
-			// TODO: Figure out how to get the files when on the cluster (probably can't upload them)
-			final String hbefaFileCold = "D:/01_DOKUMENTE/Uni/WiSe2324/MATSim_advanced/hbefa-files_v4.1/v4.1/EFA_ColdStart_Concept_2020_detailed_perTechAverage_Bln_carOnly.csv";
-			final String hbefaFileWarm = "D:/01_DOKUMENTE/Uni/WiSe2324/MATSim_advanced/hbefa-files_v4.1/v4.1/EFA_HOT_Concept_2020_detailed_perTechAverage_Bln_carOnly.csv";
+//			final String hbefaFileCold = "D:/01_DOKUMENTE/Uni/WiSe2324/MATSim_advanced/hbefa-files_v4.1/v4.1/EFA_ColdStart_Concept_2020_detailed_perTechAverage_Bln_carOnly.csv";
+			final String hbefaFileCold = "D:/01_DOKUMENTE/Uni/WiSe2324/MATSim_advanced/hbefa-files_v4.1/v4.1/EFA_ColdStart_Concept_2020_detailed_perTechAverage_withHGVetc.csv";
+//			final String hbefaFileCold = "D:/01_DOKUMENTE/Uni/WiSe2324/MATSim_advanced/hbefa-files_v4.1/v4.1/EFA_ColdStart_Concept_2020_detailed_perTechAverage.csv";
+
+//			final String hbefaFileWarm = "D:/01_DOKUMENTE/Uni/WiSe2324/MATSim_advanced/hbefa-files_v4.1/v4.1/EFA_HOT_Concept_2020_detailed_perTechAverage_Bln_carOnly.csv";
+			final String hbefaFileWarm = "D:/01_DOKUMENTE/Uni/WiSe2324/MATSim_advanced/hbefa-files_v4.1/v4.1/EFA_HOT_Concept_2020_detailed_perTechAverage.csv";
 
 			RunOfflineAirPollutionAnalysisByVehicleInformation analysis = new RunOfflineAirPollutionAnalysisByVehicleInformation(
 				runDirectory, //rootDirectory + runDirectory,
 				runId,
 				hbefaFileWarm, //rootDirectory + hbefaFileWarm,
 				hbefaFileCold, //rootDirectory + hbefaFileCold,
-				rootDirectory + runDirectory + "emission-analysis-hbefa-v4.1");
+				rootDirectory + runDirectory + "analysis/emissions");
 			analysis.run();
 
 		} else {
@@ -101,7 +109,8 @@ public class RunOfflineAirPollutionAnalysisByVehicleInformation {
 		config.global().setNumberOfThreads(1);
 
 		EmissionsConfigGroup eConfig = ConfigUtils.addOrGetModule(config, EmissionsConfigGroup.class);
-		eConfig.setDetailedVsAverageLookupBehavior(EmissionsConfigGroup.DetailedVsAverageLookupBehavior.tryDetailedThenTechnologyAverageElseAbort);
+		eConfig.setDetailedVsAverageLookupBehavior(EmissionsConfigGroup.DetailedVsAverageLookupBehavior.onlyTryDetailedElseAbort); // .tryDetailedThenTechnologyAverageElseAbort);
+		eConfig.setHbefaTableConsistencyCheckingLevel(EmissionsConfigGroup.HbefaTableConsistencyCheckingLevel.consistent); // This is absolutely necessary
 		eConfig.setDetailedColdEmissionFactorsFile(hbefaColdFile);
 		eConfig.setDetailedWarmEmissionFactorsFile(hbefaWarmFile);
 		eConfig.setNonScenarioVehicles(EmissionsConfigGroup.NonScenarioVehicles.ignore); // No clue what this actually does
@@ -128,6 +137,61 @@ public class RunOfflineAirPollutionAnalysisByVehicleInformation {
 			EngineInformation engineInformation = type.getEngineInformation();
 			VehicleUtils.setHbefaVehicleCategory(engineInformation, HbefaVehicleCategory.NON_HBEFA_VEHICLE.toString());
 		}
+
+//		scenario.getVehicles().getVehicleTypes().values().forEach(t -> log.info(VehicleUtils.getHbefaEmissionsConcept(t.getEngineInformation())));
+
+		// before changing freight vehicle types: Need to create proper CNG and LPG vehicle types
+		VehicleType cngFreightType = scenario.getVehicles().getFactory().createVehicleType(Id.create("cngFreightNew", VehicleType.class));
+		EngineInformation cngEngineInformation = cngFreightType.getEngineInformation();
+		VehicleUtils.setHbefaTechnology(cngEngineInformation, "average");
+		VehicleUtils.setHbefaSizeClass(cngEngineInformation, "average");
+		VehicleUtils.setHbefaEmissionsConcept(cngEngineInformation, "CNG");
+		VehicleUtils.setHbefaVehicleCategory(cngEngineInformation, HbefaVehicleCategory.HEAVY_GOODS_VEHICLE.toString());
+		cngFreightType.setPcuEquivalents(3.5);
+		cngFreightType.setLength(15.);
+		scenario.getVehicles().addVehicleType(cngFreightType);
+
+		VehicleType lngFreightType = scenario.getVehicles().getFactory().createVehicleType(Id.create("lngFreightNew", VehicleType.class));
+		EngineInformation lpgEngineInformation = lngFreightType.getEngineInformation();
+		VehicleUtils.setHbefaTechnology(lpgEngineInformation, "average");
+		VehicleUtils.setHbefaSizeClass(lpgEngineInformation, "average");
+		VehicleUtils.setHbefaEmissionsConcept(lpgEngineInformation, "LNG");
+		VehicleUtils.setHbefaVehicleCategory(lpgEngineInformation, HbefaVehicleCategory.HEAVY_GOODS_VEHICLE.toString());
+		lngFreightType.setPcuEquivalents(3.5);
+		lngFreightType.setLength(15.);
+		scenario.getVehicles().addVehicleType(lngFreightType);
+
+		// replace hybrid and petrol vehicles with diesel vehicles for HEAVY_GOODS_VEHICLEs
+		var debug = scenario.getVehicles().getVehicleTypes().values().stream().map(VehicleType::getEngineInformation).toList();
+
+
+		scenario.getVehicles().getVehicles().entrySet().parallelStream()
+			.filter(e -> VehicleUtils.getHbefaVehicleCategory(
+				e.getValue().getType().getEngineInformation()
+				).equals(HbefaVehicleCategory.HEAVY_GOODS_VEHICLE.toString())
+			)
+			.forEach(e -> {
+				// replace non-existent vehicle types with diesel
+				if (
+					List.of("petrol (4S)", "Plug-in Hybrid petrol/electric", "Plug-in Hybrid diesel/electric")
+						.contains(VehicleUtils.getHbefaEmissionsConcept(e.getValue().getType().getEngineInformation()))
+				){
+					scenario.getVehicles().removeVehicle(e.getKey()); // first remove car to add back
+					VehicleType type = scenario.getVehicles().getVehicleTypes().get(Id.get("dieselFreight", VehicleType.class));
+					Vehicle vehicleNew = scenario.getVehicles().getFactory().createVehicle(e.getKey(), type);
+					scenario.getVehicles().addVehicle(vehicleNew);
+				}
+				else if (VehicleUtils.getHbefaEmissionsConcept(e.getValue().getType().getEngineInformation()).equals("bifuel CNG/petrol")) {
+					scenario.getVehicles().removeVehicle(e.getKey()); // first remove car to add back
+					Vehicle vehicleNew = scenario.getVehicles().getFactory().createVehicle(e.getKey(), cngFreightType);
+					scenario.getVehicles().addVehicle(vehicleNew);
+				}
+				else if (VehicleUtils.getHbefaEmissionsConcept(e.getValue().getType().getEngineInformation()).equals("bifuel LPG/petrol")) {
+					scenario.getVehicles().removeVehicle(e.getKey()); // first remove car to add back
+					Vehicle vehicleNew = scenario.getVehicles().getFactory().createVehicle(e.getKey(), lngFreightType);
+					scenario.getVehicles().addVehicle(vehicleNew);
+				}
+			});
 
 		EventsManager eventsManager = EventsUtils.createEventsManager();
 

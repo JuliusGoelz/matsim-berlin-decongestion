@@ -1,0 +1,32 @@
+header:
+  title: Emissions
+
+layout:
+  rowTotalEmissions:
+    - title: 'Total NOx Emissions'
+      description: 'Comparing NOx air pollution between base, decongestion and roadpricing scenarios'
+      type: 'bar'
+      # width: 3
+      height: 12
+      dataset: 'src/main/python/output/total_emissions_NOx.csv'
+      x: 'pollutant'
+      columns: ['basecase', 'decongestion', 'roadpricing']
+      xAxisName: 'Pollutant'
+      yAxisName: 'Amount'
+
+  # does not work:
+  # rowEmissionMaps: # contains one map per run with the capacity usage
+  #   - title: 'NOx Emissions Basecase'
+  #     type: text
+  #     # file: src/main/resources/maps/Basecase.png
+  #     file: 'simwrapper/map_emissions_basecase.md'
+
+  #   - title: 'NOx Emissions Decongestion'
+  #     type: text
+  #     # file: src/main/resources/maps/Basecase.png
+  #     file: 'simwrapper/map_emissions_decongestion.md'
+
+  #   - title: 'NOx Emissions Roadpricing'
+  #     type: text
+  #     # file: src/main/resources/maps/Basecase.png
+  #     file: 'simwrapper/map_emissions_roadpricing.md'

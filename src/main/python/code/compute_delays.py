@@ -73,24 +73,34 @@ for (name, path) in all_paths.items():
 # save the network as gpkg and as csv
 
 network_with_delays.to_file("../output/network_with_delays.gpkg")
-network_with_delays.drop("geometry").to_csv("../output/link_delays.csv")
+network_with_delays.drop(columns=["geometry"]).to_csv("../output/link_delays.csv")
 
 
 # calculate total delays
 network_with_delays: pd.DataFrame
 
+
 total_delays: pd.DataFrame = (
     network_with_delays
-    .agg(
-        {"total_delays": "sum",
-         "total_delays_withDecongestion": "sum",
-         "total_delays_withRoadpricing": "sum"}
-        )
     .rename(columns={"total_delays": "Basecase", "total_delays_withDecongestion": "Decongestion", "total_delays_withRoadpricing": "Roadpricing"})
-    .melt(value_vars=["Basecase", "Decongestion", "Roadpricing"],
-          var_name="scenario", value_name="delays")
-    )
+    .agg(
+        {"Basecase": "sum",
+         "Decongestion": "sum",
+         "Roadpricing": "sum"}
+        ).reset_index(name="delays")
+    .rename(columns={"index": "scenario"})
+    # new:
+    .pivot_table(values="delays", columns="scenario")
+    .reset_index().rename(columns={"index": "x"})
+)
+print(total_delays)
+
+delays_relative = total_delays.copy()
+delays_relative["Decongestion"] = delays_relative["Decongestion"]/delays_relative["Basecase"] - 1
+delays_relative["Roadpricing"] = delays_relative["Roadpricing"]/delays_relative["Basecase"] - 1
+delays_relative["Basecase"] = 0.
 
 # save total delays
 
 total_delays.to_csv("../output/total_delays.csv")
+delays_relative.to_csv("../output/relative_delays.csv")

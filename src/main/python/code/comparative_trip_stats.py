@@ -27,12 +27,12 @@ path_output_roadpricing = sys.argv[3]
 if not path_output_roadpricing.endswith("/"): path_output_roadpricing += "/"
 
 all_paths = {"basecase": path_output_basecase,
-             "withDecongestion": path_output_decongestion,
-             "withRoadpricing": path_output_roadpricing}
+             "decongestion": path_output_decongestion,
+             "roadpricing": path_output_roadpricing}
 
 joined_duration = pd.DataFrame()
 for (name, path) in all_paths.items():
-    if (joined_duration.empty):
+    if joined_duration.empty:
         joined_duration = get_trip_info(path, "Total time traveled [h]", name)
     else:
         joined_duration = joined_duration.merge(
@@ -43,7 +43,7 @@ for (name, path) in all_paths.items():
         
 joined_avg_dist = pd.DataFrame()
 for (name, path) in all_paths.items():
-    if (joined_avg_dist.empty):
+    if joined_avg_dist.empty:
         joined_avg_dist = get_trip_info(path, "Avg. distance per trip [km]", name)
     else:
         joined_avg_dist = joined_avg_dist.merge(

@@ -13,7 +13,7 @@ import org.matsim.core.controler.Controler;
  *  to have the same basis as roadpricing to do emission analysis on
  * @author Julius Gölz
  */
-public class RunWithDecongestion extends RunWithVehicleTypes {
+public final class RunWithDecongestion extends RunWithVehicleTypes {
 
 	public static void main(String[] args) {
 		MATSimApplication.run(RunWithDecongestion.class, args);

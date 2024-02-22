@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  */
 public class RunWithVehicleTypes extends RunOpenBerlinScenario {
 
-	protected String runId = "withVehicleTypes";
+	protected String runId = "withVehicleTypesTest";
 
     public static void main(String[] args) {
 		MATSimApplication.run(RunWithVehicleTypes.class, args);
@@ -32,13 +32,13 @@ public class RunWithVehicleTypes extends RunOpenBerlinScenario {
 
 	@Override
 	protected Config prepareConfig(Config config) {
-        int lastIteration = 500;
+        int lastIteration = 0;
         config.controler().setLastIteration(lastIteration);
 
 		config.qsim().setVehiclesSource(QSimConfigGroup.VehiclesSource.fromVehiclesData);
 		config.qsim().setUsePersonIdForMissingVehicleId(false);
 
-		ConfigUtils.addOrGetModule(config, VehiclesConfigGroup.class); // probably not needed?
+//		ConfigUtils.addOrGetModule(config, VehiclesConfigGroup.class); // probably not needed?
 		config.controler().setRunId(runId);
 		config.controler().setOutputDirectory("output/berlin-v" + VERSION + "-0pct-" + runId);
 		config.controler().setWriteEventsInterval(50);
