@@ -33,7 +33,7 @@ public class RunWithVehicleTypes extends RunOpenBerlinScenario {
 
 	@Override
 	protected Config prepareConfig(Config config) {
-		int lastIteration = 0;
+		int lastIteration = 500;
 		config.controler().setLastIteration(lastIteration);
 
 		config.qsim().setVehiclesSource(QSimConfigGroup.VehiclesSource.fromVehiclesData);

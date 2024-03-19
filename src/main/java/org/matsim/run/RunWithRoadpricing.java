@@ -68,10 +68,6 @@ public final class RunWithRoadpricing extends RunWithVehicleTypes {
 			);
 		RoadPricingUtils.createAndAddGeneralCost(scheme,
 			Time.parseTime("6:30:00"),
-			Time.parseTime("10:00:00"),
-			toll.getTollAmount());
-		RoadPricingUtils.createAndAddGeneralCost(scheme,
-			Time.parseTime("16:00:00"),
 			Time.parseTime("19:00:00"),
 			toll.getTollAmount());
 
