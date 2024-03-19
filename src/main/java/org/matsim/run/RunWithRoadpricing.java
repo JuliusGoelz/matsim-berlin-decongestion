@@ -14,7 +14,7 @@ import picocli.CommandLine;
  * Class to run the OpenBerlinScenario with area tolling based on vehicle types.
  * @author Julius Gölz
  */
-public class RunWithRoadpricing extends RunWithVehicleTypes {
+public final class RunWithRoadpricing extends RunWithVehicleTypes {
 
 	// command line options to set toll area and toll amount
 	// TODO: this does not make the times of day in which the toll is effective configurable (yet)

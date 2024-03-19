@@ -7,33 +7,34 @@ import org.matsim.api.core.v01.population.Person;
 import org.matsim.application.MATSimApplication;
 import org.matsim.contrib.emissions.VspHbefaRoadTypeMapping;
 import org.matsim.core.config.Config;
-import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.groups.QSimConfigGroup;
-import org.matsim.core.config.groups.VehiclesConfigGroup;
 import org.matsim.vehicles.Vehicle;
 import org.matsim.vehicles.VehicleType;
 import org.matsim.vehicles.VehicleUtils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * This class extends RunOpenBerlinScenario and only adds fixed vehicles based on a pre-defined distribution.
  * It is used by both decongestion and roadpricing setups.
+ *
  * @author Julius Gölz
  */
 public class RunWithVehicleTypes extends RunOpenBerlinScenario {
 
 	protected String runId = "withVehicleTypesTest";
 
-    public static void main(String[] args) {
+	public static void main(String[] args) {
 		MATSimApplication.run(RunWithVehicleTypes.class, args);
 	}
 
 	@Override
 	protected Config prepareConfig(Config config) {
-        int lastIteration = 0;
-        config.controler().setLastIteration(lastIteration);
+		int lastIteration = 0;
+		config.controler().setLastIteration(lastIteration);
 
 		config.qsim().setVehiclesSource(QSimConfigGroup.VehiclesSource.fromVehiclesData);
 		config.qsim().setUsePersonIdForMissingVehicleId(false);
