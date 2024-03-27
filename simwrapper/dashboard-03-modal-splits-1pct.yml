@@ -17,7 +17,7 @@ layout:
     - title: 'Relative Change (Modal Split)'
       description: 'Comparing the relative change of decongestion/roadpricing scenarios compared to the basecase.'
       type: 'bar'
-      # width: 3
+      width: 3
       height: 7
       dataset: 'src/main/python/output/modal_splits_relative.csv'
       x: 'mode'
@@ -36,7 +36,7 @@ layout:
         datasetDecongestion:
           file: output/berlin-v6.0-1pct-withDecongestion/analysis/population/mode_share_per_dist.csv
           constant:
-            source: DCNG
+            source: DC
         datasetRoadpricing:
           file: output/berlin-v6.0-1pct-withRoadpricing/analysis/population/mode_share_per_dist.csv
           constant:

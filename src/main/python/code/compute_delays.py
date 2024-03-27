@@ -69,12 +69,19 @@ for (name, path) in all_paths.items():
     delays = get_link_total_delays(link_delays, network_links)
     network_with_delays = (network_with_delays
                            .merge(delays, how="left", on="link_id", suffixes=[None, f"_{name}"]))
-
+network_with_delays["total_delays_withDecongestion_diff_abs"] = (network_with_delays["total_delays_withDecongestion"] - network_with_delays["total_delays"]).abs()
+network_with_delays["total_delays_withRoadpricing_diff_abs"] = (network_with_delays["total_delays_withRoadpricing"] - network_with_delays["total_delays"]).abs()
+network_with_delays = network_with_delays[["link_id"] + [col for col in network_with_delays.columns if col != "link_id"]]
 # save the network as gpkg and as csv
 
-network_with_delays.to_file("../output/network_with_delays.gpkg")
-network_with_delays.drop(columns=["geometry"]).to_csv("../output/link_delays.csv")
+# network_with_delays.to_file("../output/network_with_delays.gpkg")
+network_with_delays.drop(columns=["geometry"]).to_csv("../output/link_delays.csv", index=False)
 
+network_with_delays_only_bc = network_with_delays.copy()
+network_with_delays_only_bc["congestion_index_withDecongestion"] = network_with_delays_only_bc["congestion_index"]
+network_with_delays_only_bc["congestion_index_withRoadpricing"] = network_with_delays_only_bc["congestion_index"]
+
+network_with_delays_only_bc.drop(columns=["geometry"]).to_csv("../output/link_delays_only_bc.csv", index=False)
 
 # calculate total delays
 network_with_delays: pd.DataFrame

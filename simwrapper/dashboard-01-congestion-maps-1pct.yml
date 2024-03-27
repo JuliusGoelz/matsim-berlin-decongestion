@@ -3,34 +3,34 @@ header:
 
 layout:
   rowCapacityAbsolute: # contains one map per run with the capacity usage
-    - title: 'Base Case'
-      description: 'Capacity usage'
-      type: links
-      height: 8
-      props:
-        network: 'output/berlin-v6.0-1pct-withVehicleTypes/withVehicleTypes.output_network.xml.gz'
-        projection: EPSG:25832
-        zoom: 9.5
-        center:
-            - 13.4
-            - 52.51
-        # showDifferences: true
-        datasets:
-          csvFile: 'output/berlin-v6.0-1pct-withVehicleTypes/analysis/traffic/traffic_stats_by_link_daily.csv'
-          # csvBase: '../base/output/accidentCosts.csv.gz'
-        display:
-          color:
-            dataset: csvFile
-            columnName: road_capacity_utilization
-            colorRamp:
-              ramp: RdBu
-              steps: 9
-          width:
-            dataset: csvFile
-            columnName: simulated_traffic_volume
-            scaleFactor: 10000
-    - title: 'Decongestion'
-      description: 'Capacity usage'
+    # - title: 'Base Case'
+    #   description: 'Capacity usage'
+    #   type: links
+    #   height: 8
+    #   props:
+    #     network: 'output/berlin-v6.0-1pct-withVehicleTypes/withVehicleTypes.output_network.xml.gz'
+    #     projection: EPSG:25832
+    #     zoom: 9.5
+    #     center:
+    #         - 13.4
+    #         - 52.51
+    #     # showDifferences: true
+    #     datasets:
+    #       csvFile: 'src/main/python/output/traffic_stats_by_link_daily.csv'
+    #       # csvBase: '../base/output/accidentCosts.csv.gz'
+    #     display:
+    #       color:
+    #         dataset: csvFile
+    #         columnName: road_capacity_utilization
+    #         colorRamp:
+    #           ramp: RdBu
+    #           steps: 9
+    #       width:
+    #         dataset: csvFile
+    #         columnName: simulated_traffic_volume
+    #         scaleFactor: 10000
+    - title: 'Decongestion - Change in Traffic Volume'
+      description: 'Difference in traffic volume compared to basecase'
       type: links
       height: 8
       props:
@@ -40,10 +40,10 @@ layout:
         center:
             - 13.4
             - 52.51
-        # showDifferences: true
+        showDifferences: true
         datasets:
-          csvFile: 'output/berlin-v6.0-1pct-withDecongestion/analysis/traffic/traffic_stats_by_link_daily.csv' 
-          # csvBase: '../base/output/accidentCosts.csv.gz'
+          csvFile: 'src/main/python/output/traffic_stats_by_link_daily_dc.csv' 
+          csvBase: 'src/main/python/output/traffic_stats_by_link_daily_bc.csv'
         display:
           color:
             dataset: csvFile
@@ -53,10 +53,10 @@ layout:
               steps: 9
           width:
             dataset: csvFile
-            columnName: simulated_traffic_volume
-            scaleFactor: 10000
-    - title: 'Roadpricing'
-      description: 'Capacity usage'
+            columnName: simulated_traffic_volume_diff_abs
+            scaleFactor: 1000
+    - title: 'Roadpricing - Change in Traffic Volume'
+      description: 'Difference in traffic volume compared to basecase'
       type: links
       height: 8
       props:
@@ -66,10 +66,10 @@ layout:
         center:
             - 13.4
             - 52.51
-        # showDifferences: true
+        showDifferences: true
         datasets:
-          csvFile: 'output/berlin-v6.0-1pct-withRoadpricing/analysis/traffic/traffic_stats_by_link_daily.csv'
-          # csvBase: '../base/output/accidentCosts.csv.gz'
+          csvFile: 'src/main/python/output/traffic_stats_by_link_daily_rp.csv'
+          csvBase: 'src/main/python/output/traffic_stats_by_link_daily_bc.csv'
         display:
           color:
             dataset: csvFile
@@ -79,8 +79,8 @@ layout:
               steps: 9
           width:
             dataset: csvFile
-            columnName: simulated_traffic_volume
-            scaleFactor: 10000
+            columnName: simulated_traffic_volume_diff_abs
+            scaleFactor: 1000
   rowCapacityRelative:
     - title: 'Decongestion'
       description: 'Capacity usage compared to base case'
@@ -95,19 +95,19 @@ layout:
             - 52.51
         showDifferences: true
         datasets:
-          csvFile: 'output/berlin-v6.0-1pct-withDecongestion/analysis/traffic/traffic_stats_by_link_daily.csv'
-          csvBase: 'output/berlin-v6.0-1pct-withVehicleTypes/analysis/traffic/traffic_stats_by_link_daily.csv'
+          csvFile: 'src/main/python/output/link_delays.csv'
+          csvBase: 'src/main/python/output/link_delays_only_bc.csv'
         display:
           color:
             dataset: csvFile
-            columnName: road_capacity_utilization
+            columnName: congestion_index_withDecongestion
             colorRamp:
               ramp: RdBu
               steps: 9
           width:
             dataset: csvFile
-            columnName: simulated_traffic_volume
-            scaleFactor: 10000
+            columnName: total_delays_withDecongestion_diff_abs
+            scaleFactor: 10
     - title: 'Roadpricing'
       description: 'Capacity usage compared to base case'
       type: links
@@ -121,19 +121,19 @@ layout:
             - 52.51
         showDifferences: true
         datasets:
-          csvFile: 'output/berlin-v6.0-1pct-withRoadpricing/analysis/traffic/traffic_stats_by_link_daily.csv'
-          csvBase: 'output/berlin-v6.0-1pct-withVehicleTypes/analysis/traffic/traffic_stats_by_link_daily.csv'
+          csvFile: 'src/main/python/output/link_delays.csv'
+          csvBase: 'src/main/python/output/link_delays_only_bc.csv'
         display:
           color:
             dataset: csvFile
-            columnName: road_capacity_utilization
+            columnName: congestion_index_withRoadpricing
             colorRamp:
               ramp: RdBu
               steps: 9
           width:
             dataset: csvFile
-            columnName: simulated_traffic_volume
-            scaleFactor: 10000
+            columnName: total_delays_withRoadpricing_diff_abs
+            scaleFactor: 10
   rowDelaysChart:
     - title: 'Total delays'
       description: 'Total amount of delays for persons using network modes [hrs]'

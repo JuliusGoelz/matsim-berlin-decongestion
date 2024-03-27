@@ -38,8 +38,6 @@ import java.util.stream.Collectors;
  */
 public class RunOfflineAirPollutionAnalysisByVehicleInformation {
 
-	// !!!!! NOT YET TESTED !!!!!
-
 	// For me this produces a lot of warnings like:
 	//  "WARN WarmEmissionHandler:126 At time 69707.0, vehicle commercialPersonTraffic_service_Berlin_re_vkz.1033_3_47_car
 	//  enters and leaves traffic without having entered link 121481. Thus, no emissions are calculated for travel along this link."

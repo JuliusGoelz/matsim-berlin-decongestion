@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  */
 public class RunWithVehicleTypes extends RunOpenBerlinScenario {
 
-	protected String runId = "withVehicleTypesTest";
+	protected String runId = "withVehicleTypes";
 
 	public static void main(String[] args) {
 		MATSimApplication.run(RunWithVehicleTypes.class, args);
